@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   Alert,
   Image,
@@ -12,33 +13,41 @@ import {
   Platform,
   View,
   TextInput,
-  StatusBar,
 } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+import { registerDB } from "../utils/auth";
 
-import AddPhotoComponent from "../assets/icons/AddPhotoComponent";
+import AddPhotoComponent from "../assets/icons/AddPhotoIconComponent";
 const image = require("../assets/photo_bg.png");
-const photoBlock = null;
+const photo_block = null;
 
 const RegistrationScreen = () => {
-  const [login, setLogin] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [inputs, setInputs] = useState({
+    email: "", password: "", login: ""
+    });
+
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  
+  const handleInputChange = (name, value) => {
+    setInputs((prev) => ({ ...prev, [name]: value }));
+    };
+
   const [isEmailFocused, setIsEmailFocused] = useState(false);
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [isPassFocused, setIsPassFocused] = useState(false);
   const [isLoginFocused, setIsLoginFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
   const onRegistration = () => {
-    if (!email || !password || !login) {
+    if (!inputs.email || !inputs.password || !inputs.login) {
       Alert.alert("Помилка", "Будь ласка, заповніть усі необхідні поля");
       return;
     }
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(inputs.email)) {
       Alert.alert(
         "Помилка",
         "Будь ласка, введіть коректну адресу електронної пошти"
@@ -46,34 +55,34 @@ const RegistrationScreen = () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (inputs.password.length < 6) {
       Alert.alert("Помилка", "Пароль повинен бути не менше 6 символів");
       return;
     }
-    Alert.alert("Тест", `${login} + ${email} + ${password}`);
+    registerDB({ displayName: inputs.login, email: inputs.email, password: inputs.password}, dispatch);
+    navigation.navigate("Login");
+    
   };
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.screenContainer}>
-        <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-        <ImageBackground source={image} resizeMode="cover" style={styles.background}>
+      <View style={styles.container}>
+        <ImageBackground source={image} resizeMode="cover" style={styles.image}>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.keyboardWrapper}
+            style={styles.keyboardContainer}
             keyboardVerticalOffset={Platform.OS === "ios" ? -100 : 0}>
-            <View style={styles.formContainer}>
-              <View style={styles.avatarWrapper}>
-                <Image style={styles.avatar} source={photoBlock} />
-                <AddPhotoComponent style={styles.photoIcon} />
+            <View style={styles.canva}>
+              <View style={styles.avatarBox}>
+                <Image style={styles.avatar} source={photo_block} />
+                <AddPhotoComponent style={styles.addPhoto} />
               </View>
-              <Text style={styles.headerText}>Реєстрація</Text>
-              <View style={styles.inputFields}>
+              <Text style={styles.title}>Реєстрація</Text>
+              <View style={styles.inputGroup}>
                 <TextInput
-                  style={[styles.textInput, isLoginFocused && styles.textInputFocused]}
+                  style={[styles.input, isLoginFocused && styles.inputFocused]}
                   placeholder="Логін"
-                  value={login}
-                  onChangeText={setLogin}
+                  value={inputs.login}
+                  onChangeText={(value) => handleInputChange("login", value)}
                   placeholderTextColor="#BDBDBD"
                   keyboardType="default"
                   autoCapitalize="none"
@@ -81,9 +90,9 @@ const RegistrationScreen = () => {
                   onBlur={() => setIsLoginFocused(false)}
                 />
                 <TextInput
-                  style={[styles.textInput, isEmailFocused && styles.textInputFocused]}
-                  value={email}
-                  onChangeText={setEmail}
+                  style={[styles.input, isEmailFocused && styles.inputFocused]}
+                  value={inputs.email}
+                  onChangeText={(value) => handleInputChange("email", value)}
                   placeholder="Адреса електронної пошти"
                   placeholderTextColor="#BDBDBD"
                   keyboardType="email-address"
@@ -93,34 +102,36 @@ const RegistrationScreen = () => {
                 />
                 <View
                   style={[
-                    styles.passwordField,
-                    isPasswordFocused && styles.textInputFocused,
+                    styles.passwordContainer,
+                    isPassFocused && styles.inputFocused,
                   ]}>
                   <TextInput
-                    style={styles.passwordInput}
-                    value={password}
-                    onChangeText={setPassword}
+                    style={styles.password}
+                    value={inputs.password}
+                    onChangeText={(value) => handleInputChange("password", value)}
                     placeholder="Пароль"
                     placeholderTextColor="#BDBDBD"
                     autoCapitalize="none"
                     secureTextEntry={!isPasswordVisible}
-                    onFocus={() => setIsPasswordFocused(true)}
-                    onBlur={() => setIsPasswordFocused(false)}
+                    onFocus={() => setIsPassFocused(true)}
+                    onBlur={() => setIsPassFocused(false)}
                   />
-                  <Pressable style={styles.toggleButton} onPress={togglePasswordVisibility}>
-                    <Text style={styles.toggleText}>
-                      {isPasswordVisible ? "Сховати" : "Показати"}
+                  <Pressable
+                    style={styles.button}
+                    onPress={togglePasswordVisibility}>
+                    <Text style={styles.buttonText}>
+                      {isPasswordVisible ? "Скрыть" : "Показати"}
                     </Text>
                   </Pressable>
                 </View>
               </View>
-              <Pressable onPress={onRegistration} style={styles.registerButton}>
-                <Text style={styles.registerButtonText}>Зареєстуватися</Text>
+              <Pressable onPress={onRegistration} style={styles.submitButton}>
+                <Text style={styles.submitButtonText}>Зареєстуватися</Text>
               </Pressable>
-              <View style={styles.loginPrompt}>
-                <Text style={styles.loginText}>Вже є акаунт?</Text>
+              <View style={styles.enterButton}>
+                <Text style={styles.enterButtonText}>Вже є акаунт?</Text>
                 <Pressable>
-                  <Text style={styles.loginLink}>Увійти</Text>
+                  <Text style={styles.regLink} onPress={() => navigation.navigate("Login")}> Увійти</Text>
                 </Pressable>
               </View>
             </View>
@@ -132,31 +143,35 @@ const RegistrationScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screenContainer: {
+  container: {
     flex: 1,
   },
-  background: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  keyboardWrapper: {
+  image: {
     flex: 1,
     justifyContent: "flex-end",
   },
-  formContainer: {
-    backgroundColor: "#FFFFFF",
+  keyboardContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  canva: {
+    backgroundColor: "rgb(255, 255, 255)",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     width: "100%",
-    padding: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 16,
+    paddingTop: 32,
   },
-  avatarWrapper: {
+  avatarBox: {
     width: 132,
     height: 120,
+    zIndex: 2,
     position: "absolute",
     top: -60,
     left: "50%",
-    transform: [{ translateX: -66 }],
+    transform: [{ translateX: -46 }],
   },
   avatar: {
     width: 120,
@@ -164,22 +179,22 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
     borderRadius: 16,
   },
-  photoIcon: {
+  addPhoto: {
     position: "absolute",
     bottom: 0,
     right: 0,
   },
-  headerText: {
+  title: {
     color: "#212121",
     textAlign: "center",
+    fontFamily: "Roboto",
     fontSize: 30,
-    fontWeight: "500",
-    marginVertical: 32,
+    fontWeight: 500,
+    letterSpacing: 0.3,
+    paddingTop: 92,
+    paddingBottom: 33,
   },
-  inputFields: {
-    marginBottom: 27,
-  },
-  textInput: {
+  input: {
     height: 50,
     borderWidth: 1,
     padding: 16,
@@ -190,56 +205,59 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
   },
-  textInputFocused: {
+  inputGroup: {
+    marginBottom: 27,
+  },
+  inputFocused: {
     borderColor: "#FF6C00",
   },
-  passwordField: {
+  submitButton: {
+    borderRadius: 100,
+    backgroundColor: "#FF6C00",
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingLeft: 32,
+    paddingRight: 32,
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  submitButtonText: {
+    color: "white",
+  },
+  button: {},
+  buttonText: {
+    fontSize: 16,
+    color: "#1B4371",
+  },
+  passwordContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#E0E0E0",
-    borderRadius: 8,
+    borderRadius: 10,
     backgroundColor: "#F9F9F9",
     paddingHorizontal: 16,
     height: 50,
     marginBottom: 16,
   },
-  passwordInput: {
+  password: {
     color: "#212121",
     fontSize: 16,
-    flex: 1,
+    width: 200,
   },
-  toggleButton: {
-    marginLeft: 10,
-  },
-  toggleText: {
-    color: "#1B4371",
-    fontSize: 16,
-  },
-  registerButton: {
-    backgroundColor: "#FF6C00",
-    borderRadius: 100,
-    paddingVertical: 16,
-    alignItems: "center",
-  },
-  registerButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-  },
-  loginPrompt: {
+  enterButton: {
+    margin: 16,
     flexDirection: "row",
     justifyContent: "center",
-    marginVertical: 16,
   },
-  loginText: {
+  enterButtonText: {
     color: "#1B4371",
     fontSize: 16,
   },
-  loginLink: {
+  regLink: {
     color: "#1B4371",
     fontSize: 16,
-    marginLeft: 5,
   },
 });
 
