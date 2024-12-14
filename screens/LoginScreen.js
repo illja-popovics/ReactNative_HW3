@@ -15,28 +15,41 @@ import {
 import { loginDB } from "../utils/auth";
 import { useDispatch } from "react-redux";
 
+// Importing the background image
 const image = require("../assets/photo_bg.png");
 
+// Component definition for LoginScreen
 const LoginScreen = ({ navigation, setLogged }) => {
+  // State to manage input values for email and password
   const [inputs, setInputs] = useState({
     email: "",
     password: "",
   });
 
+  // Function to handle changes in the input fields
   const handleInputChange = (name, value) => {
     setInputs((prev) => ({ ...prev, [name]: value }));
   };
 
+  // State to manage focus styles for email and password inputs
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPassFocused, setIsPassFocused] = useState(false);
+
+  // State to manage password visibility toggle
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  // Redux dispatch function
   const dispatch = useDispatch();
 
+  // Function to handle the login process
   const onLogin = async () => {
+    // Validation to ensure all fields are filled
     if (!inputs.email || !inputs.password) {
       Alert.alert("Помилка", "Будь ласка, заповніть усі необхідні поля");
       return;
     }
+
+    // Email validation using regex
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     if (!emailRegex.test(inputs.email)) {
       Alert.alert(
@@ -46,34 +59,41 @@ const LoginScreen = ({ navigation, setLogged }) => {
       return;
     }
 
+    // Password length validation
     if (inputs.password.length < 6) {
       Alert.alert("Помилка", "Пароль повинен бути не менше 6 символів");
       return;
     }
 
+    // Attempt to log in the user
     try {
-      await loginDB({ email: inputs.email, password: inputs.password }, dispatch)
+      await loginDB({ email: inputs.email, password: inputs.password }, dispatch);
     } catch (err) {
       Alert.alert("Незареєстрований користувач");
     }
-
   };
 
+  // Function to toggle password visibility
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
   return (
+    // Dismiss keyboard when tapping outside the input fields
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
+        {/* Background image for the login screen */}
         <ImageBackground source={image} resizeMode="cover" style={styles.image}>
+          {/* KeyboardAvoidingView to handle keyboard overlap */}
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.keyboardContainer}
             keyboardVerticalOffset={Platform.OS === "ios" ? -100 : 0}>
             <View style={styles.canva}>
+              {/* Screen title */}
               <Text style={styles.title}>Увійти</Text>
               <View style={styles.inputGroup}>
+                {/* Email input field */}
                 <TextInput
                   style={[styles.input, isEmailFocused && styles.inputFocused]}
                   value={inputs.email}
@@ -90,6 +110,7 @@ const LoginScreen = ({ navigation, setLogged }) => {
                     styles.passwordContainer,
                     isPassFocused && styles.inputFocused,
                   ]}>
+                  {/* Password input field */}
                   <TextInput
                     style={styles.password}
                     value={inputs.password}
@@ -103,6 +124,7 @@ const LoginScreen = ({ navigation, setLogged }) => {
                     onFocus={() => setIsPassFocused(true)}
                     onBlur={() => setIsPassFocused(false)}
                   />
+                  {/* Button to toggle password visibility */}
                   <Pressable
                     style={styles.button}
                     onPress={togglePasswordVisibility}>
@@ -112,10 +134,12 @@ const LoginScreen = ({ navigation, setLogged }) => {
                   </Pressable>
                 </View>
               </View>
+              {/* Login button */}
               <Pressable onPress={onLogin} style={styles.submitButton}>
                 <Text style={styles.submitButtonText}> Увійти</Text>
               </Pressable>
               <View style={styles.enterButton}>
+                {/* Registration link */}
                 <Text style={styles.enterButtonText}>Немає акаунту?</Text>
                 <Pressable>
                   <Text

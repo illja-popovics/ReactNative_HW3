@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; 
+// Importing React and the useState hook for state management.
 import {
   SafeAreaView,
   StyleSheet,
@@ -10,30 +11,38 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-} from "react-native";
-import uuid from "react-native-uuid";
-import ArrowUpIconComponent from "../assets/icons/ArrowUpButton";
-import { addCommentToPost } from "../utils/store";
+} from "react-native"; 
+// Importing React Native components for building the UI.
+import uuid from "react-native-uuid"; // Importing UUID library for generating unique IDs.
+import ArrowUpIconComponent from "../assets/icons/ArrowUpButton"; // Custom component for the "send" icon.
+import { addCommentToPost } from "../utils/store"; // Utility function for adding a comment to a post.
 
 const CommentsScreen = (props) => {
-  const item = props.route.params.item;
-  const userId = props.route.params.user.uid;
+  // Extracting post data and user ID from navigation props.
+  const item = props.route.params.item; 
+  const userId = props.route.params.user.uid; 
+
+  // State to manage the current comment input.
   const [userComment, setUserComment] = useState("");
 
+  // Handles the action of sending a comment.
   const handleSendComment = () => {
-    if (!userComment) return;
+    if (!userComment) return; // Prevent sending if the input is empty.
+
     const newComment = {
-      id: uuid.v4(),
-      text: userComment,
-      userId: userId,
-      timestamp: new Date().toISOString(),
+      id: uuid.v4(), // Generate a unique ID for the comment.
+      text: userComment, // The user's comment text.
+      userId: userId, // ID of the user who posted the comment.
+      timestamp: new Date().toISOString(), // Timestamp for when the comment was created.
     };
-  
+
+    // Save the comment to the post and navigate back with updated data.
     addCommentToPost(userId, item.id, newComment);
     props.navigation.navigate("AllPosts", { userComment, comment: true });
-    setUserComment("");
+    setUserComment(""); // Clear the input field after submission.
   };
 
+  // Component for rendering the "send comment" button.
   const sendComment = (
     <TouchableOpacity
       onPress={handleSendComment}
@@ -54,26 +63,33 @@ const CommentsScreen = (props) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
+        {/* Displaying the post's image */}
         <Image source={{ uri: item.photo }} style={styles.image} />
+
+        {/* List of comments */}
         <FlatList
           style={styles.list}
-          data={item.comments || []}
-          keyExtractor={(item, index) => item.id || index.toString()}
+          data={item.comments || []} // Data source for the FlatList (defaults to empty array if no comments exist).
+          keyExtractor={(item, index) => item.id || index.toString()} // Unique key for each comment.
           renderItem={({ item, index }) => (
             <View
               style={[
                 styles.commentsWrapper,
-                index % 2 === 0 ? styles.commentEven : styles.commentOdd,
+                index % 2 === 0 ? styles.commentEven : styles.commentOdd, // Alternate styles for even and odd comments.
               ]}>
+              {/* Comment avatar displayed conditionally based on index */}
               {index % 2 === 0 && (
                 <View style={styles.commentAvatarContainer}>
                   <Text style={styles.commentAvatar}>{item?.author}</Text>
                 </View>
               )}
               <View style={styles.commentContainer}>
+                {/* Comment text */}
                 <Text style={styles.text}>{item?.text}</Text>
+                {/* Timestamp for the comment */}
                 <Text style={styles.dateTime}>{item?.dateTime}</Text>
               </View>
+              {/* Repeated avatar display for odd comments */}
               {index % 2 !== 0 && (
                 <View style={styles.commentAvatarContainer}>
                   <Text style={styles.commentAvatar}>{item?.author}</Text>
@@ -83,15 +99,17 @@ const CommentsScreen = (props) => {
           )}
         />
       </View>
+
+      {/* Input field and send button for adding new comments */}
       <View style={styles.inputWrapper}>
         <TextInput
-          value={userComment}
-          placeholder="Коментувати..."
-          onChangeText={setUserComment}
-          style={styles.input}
+          value={userComment} // Bind the input value to the state.
+          placeholder="Коментувати..." // Placeholder text for the input field.
+          onChangeText={setUserComment} // Update the state as the user types.
+          style={styles.input} // Style for the input field.
         />
         <TouchableOpacity onPress={handleSendComment} style={styles.sendButton}>
-          <ArrowUpIconComponent />
+          <ArrowUpIconComponent /> {/* "Send" icon */}
         </TouchableOpacity>
       </View>
     </SafeAreaView>

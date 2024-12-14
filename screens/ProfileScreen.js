@@ -24,7 +24,7 @@ import { getPosts } from "../utils/store.js";
 
 const image = require("../assets/photo_bg.png");
 const photo_block = require("../assets/avatar.jpeg");
-// const posts = travelCards;
+const posts = travelCards;
 
 const fetchUserPosts = async (userId) => {
   try {
