@@ -14,16 +14,28 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.homeworkapp"
+      "bundleIdentifier": "com.anonymous.homeworkapp",
+      "runtimeVersion": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "runtimeVersion": {
+        "policy": "appVersion"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "10e9532f-333c-4108-8001-a91e048c98ca"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/10e9532f-333c-4108-8001-a91e048c98ca"
     }
   }
 }
