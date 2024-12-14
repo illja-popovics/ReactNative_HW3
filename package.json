@@ -1,5 +1,5 @@
 {
-  "name": "mytravelapp11",
+  "name": "homeworkapp",
   "license": "0BSD",
   "version": "1.0.0",
   "main": "index.js",
@@ -22,6 +22,7 @@
     "expo-location": "^18.0.2",
     "expo-media-library": "^17.0.3",
     "expo-status-bar": "~2.0.0",
+    "expo-updates": "^0.26.10",
     "firebase": "^11.0.2",
     "react": "18.3.1",
     "react-native": "0.76.2",
